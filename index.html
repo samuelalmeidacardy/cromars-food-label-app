@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173e35">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Food Labels">
+  <meta name="description" content="Offline food expiry label generator with adjustable thermal and sheet printer layouts.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <title>Food Labels</title>
+</head>
+<body>
+<header class="topbar"><div class="brand"><div class="brand-icon" aria-hidden="true">▤</div><div><h1>Food Labels</h1><p>Fast, dependable date labels</p></div></div><span id="offlineBadge" class="status">Starting…</span></header>
+<main>
+  <nav class="tabs" aria-label="Main navigation">
+    <button data-tab="generate" class="active" aria-current="page">Generate</button>
+    <button data-tab="foods">Food presets</button>
+    <button data-tab="templates">Printers & labels</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+
+  <section id="generate" class="screen">
+    <div class="panel">
+      <div class="section-title"><div><p class="eyebrow">EVERYDAY WORKFLOW</p><h2>Create labels</h2></div><span class="subtle-pill" id="todayBadge"></span></div>
+      <label for="foodSearchGenerate">Find a food</label>
+      <input id="foodSearchGenerate" placeholder="Search food presets…" autocomplete="off">
+      <label for="foodSelect">Food preset</label>
+      <select id="foodSelect"><option value="">Add a preset to start</option></select>
+      <div class="row two">
+        <div><label for="quantity">Number of labels</label><div class="stepper"><button type="button" id="qtyMinus" aria-label="Remove one label">−</button><input id="quantity" type="number" inputmode="numeric" min="1" max="500" value="1"><button type="button" id="qtyPlus" aria-label="Add one label">+</button></div></div>
+        <div><label for="startDate">Starting date</label><input id="startDate" type="date"><small class="helper" id="dateAutoHint">Uses today's local date automatically</small></div>
+      </div>
+      <div id="fixedWrap" class="hidden"><label for="fixedDate">Enter expiry date</label><input id="fixedDate" type="date"></div>
+      <p id="ruleHint" class="helper"></p>
+    </div>
+    <div class="panel">
+      <div class="section-title"><div><p class="eyebrow">LIVE PREVIEW</p><h2>Your label</h2></div><span id="previewDimensions" class="subtle-pill">50 × 30 mm</span></div>
+      <div class="preview-stage"><div id="preview"><div class="empty">Choose a food to preview its label</div></div></div>
+      <p id="previewInfo" class="helper"></p>
+      <p class="alert hidden" id="message" role="alert"></p>
+      <div class="actions"><button id="printBtn" class="primary">Print <span id="printCount">1 label</span></button><button id="gotoPrinters">Label setup</button></div>
+      <p class="helper">The print dialog uses the saved printer profile. Check physical scale and disable “Fit to page” when your printer supports it.</p>
+    </div>
+  </section>
+
+  <section id="foods" class="screen hidden">
+    <div class="panel"><div class="section-title"><div><p class="eyebrow">YOUR LIBRARY</p><h2>Food presets</h2></div><span class="subtle-pill" id="foodCount">0 foods</span></div><input id="foodSearch" placeholder="Search presets…" aria-label="Search food presets"><div id="foodList"></div></div>
+    <div class="panel" id="editPanel"><h2 id="editHeading">Add food preset</h2><p class="helper">Set expiry durations only from your approved food-safety procedures.</p>
+      <input id="editId" type="hidden">
+      <label for="foodName">Food name</label><input id="foodName" placeholder="e.g. Chicken curry" maxlength="120">
+      <label for="foodCategory">Category (optional)</label><input id="foodCategory" placeholder="e.g. Cooked food" maxlength="80">
+      <div class="row two"><div><label for="dateBasis">Starting date basis</label><select id="dateBasis"><option value="preparation_date">Prepared date</option><option value="opening_date">Opened date</option><option value="manual_date">Manually chosen date</option><option value="fixed_date">Fixed expiry date</option></select></div><div><label for="ruleType">Expiry method</label><select id="ruleType"><option value="calendar_days">Calendar days after start</option><option value="fixed_date">Enter expiry on each run</option></select></div></div>
+      <div id="daysWrap"><label for="ruleDays">Calendar days to add</label><input id="ruleDays" type="number" min="0" max="3650" step="1" value="0"></div>
+      <label for="dateLabel">Expiry wording</label><input id="dateLabel" value="Use by" maxlength="35">
+      <label for="storageInstructions">Storage instructions (optional)</label><input id="storageInstructions" placeholder="e.g. Keep refrigerated" maxlength="150">
+      <label class="checkline"><input type="checkbox" id="approved"> <span>Expiry rule and wording verified against our approved food-safety procedure</span></label>
+      <div class="actions"><button id="saveFood" class="primary">Save preset</button><button id="clearFood">Clear form</button></div>
+      <p id="foodMessage" class="alert hidden" role="status"></p>
+    </div>
+  </section>
+
+  <section id="templates" class="screen hidden">
+    <div class="panel"><p class="eyebrow">PRINT SETUP</p><h2>Printer profiles</h2><p class="helper">Choose a common label size or enter your own. Settings stay on this device.</p>
+      <label for="profileSelect">Saved profile</label><select id="profileSelect"></select>
+      <div class="row two"><div><label for="profileName">Profile name</label><input id="profileName" maxlength="60"></div><div><label for="mediaType">Printer layout</label><select id="mediaType"><option value="thermal">Thermal · one label per page</option><option value="sheet">Sheet · multiple labels per page</option></select></div></div>
+      <label for="sizePreset">Quick sizes</label><select id="sizePreset"><option value="50x30">50 × 30 mm (default)</option><option value="40x30">40 × 30 mm</option><option value="60x40">60 × 40 mm</option><option value="70x50">70 × 50 mm</option><option value="100x50">100 × 50 mm</option><option value="custom">Custom</option></select>
+      <div class="row two"><div><label for="widthMm">Label width (mm)</label><input id="widthMm" type="number" inputmode="decimal" min="20" max="150" step="0.1"></div><div><label for="heightMm">Label height (mm)</label><input id="heightMm" type="number" inputmode="decimal" min="15" max="150" step="0.1"></div></div>
+      <div id="sheetOptions" class="hidden"><div class="row two"><div><label for="columns">Columns per page</label><input id="columns" type="number" min="1" max="8" step="1"></div><div><label for="gapMm">Gap between labels (mm)</label><input id="gapMm" type="number" min="0" max="30" step="0.1"></div></div><div class="row two"><div><label for="sheetPage">Paper</label><select id="sheetPage"><option value="A4">A4</option><option value="Letter">US Letter</option></select></div><div><label for="marginMm">Page margin (mm)</label><input id="marginMm" type="number" min="0" max="30" step="0.1"></div></div></div>
+      <div class="row two"><div><label for="paddingMm">Inside label padding (mm)</label><input id="paddingMm" type="number" min="0.5" max="8" step="0.1"></div><div><label for="textScale">Text scaling</label><select id="textScale"><option value="auto">Automatic</option><option value="compact">Compact</option><option value="large">Larger (when it fits)</option></select></div></div>
+      <div class="section-title"><h3>Live size preview</h3><span id="profileDimensions" class="subtle-pill"></span></div><div class="preview-stage"><div id="profilePreview"></div></div>
+      <div class="actions"><button class="primary" id="saveProfile">Save changes</button><button id="newProfile">Save as new profile</button><button id="deleteProfile" class="danger-light">Delete profile</button></div>
+      <p id="templateMessage" class="alert hidden" role="status"></p>
+      <button id="testPrint">Print calibration label</button><p class="helper">A calibration print adds a border and dimensions. Measure the result before printing expiry labels. iPhone/driver settings may override requested media size.</p>
+    </div>
+  </section>
+
+  <section id="settings" class="screen hidden">
+    <div class="panel"><p class="eyebrow">PREFERENCES</p><h2>Settings</h2><label for="dateFormat">Printed date format</label><select id="dateFormat"><option value="DD/MM/YYYY">DD/MM/YYYY (UK)</option><option value="YYYY-MM-DD">YYYY-MM-DD</option></select><label for="defaultQuantity">Default number of labels</label><input id="defaultQuantity" type="number" min="1" max="500" step="1"><button id="saveSettings" class="primary">Save preferences</button></div>
+    <div class="panel"><h2>Data backup</h2><p class="helper">Food presets, printer profiles and settings are saved locally using IndexedDB. Storage can be cleared by your device: keep a backup.</p><div class="actions"><button id="exportData">Export JSON backup</button><button id="importData">Restore JSON backup</button></div><input type="file" id="backupFile" accept=".json,application/json" class="hidden"><p id="settingsMessage" class="alert hidden" role="status"></p></div>
+    <div class="panel"><h2>Offline & printing</h2><p id="cacheStatus" class="helper">Checking offline setup…</p><p class="helper">Initial installation needs HTTPS (or localhost). Once cached, the generator works without internet. Printer availability, connection and print-dialog compatibility are device-dependent.</p><p class="helper">This app calculates dates using your presets. It does not determine whether food is safe or establish an approved shelf life.</p></div>
+  </section>
+</main>
+<div id="printArea" aria-hidden="true"></div>
+<style id="dynamicPrintCSS"></style>
+<script src="./date-engine.js"></script>
+<script src="./app.js"></script>
+</body></html>

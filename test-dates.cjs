@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict');
+const e=require('node:vm').runInNewContext(require('node:fs').readFileSync(__dirname+'/date-engine.js','utf8')+'\nDateEngine');
+assert.equal(e.addCalendarDays('2026-10-31',2),'2026-11-02');
+assert.equal(e.addCalendarDays('2028-02-28',1),'2028-02-29');
+assert.equal(e.addCalendarDays('2028-02-29',1),'2028-03-01');
+assert.equal(e.addCalendarDays('2026-12-31',1),'2027-01-01');
+assert.equal(e.addCalendarDays('2026-03-28',2),'2026-03-30');
+assert.equal(e.addCalendarDays('2026-10-24',2),'2026-10-26');
+assert.equal(e.validDate('2026-02-29'),false);
+assert.equal(e.validDate('2028-02-29'),true);
+assert.equal(e.formatDate('2026-10-27','DD/MM/YYYY'),'27/10/2026');
+assert.throws(()=>e.addCalendarDays('2026-10-27',-1));
+assert.throws(()=>e.addCalendarDays('2026-13-01',3));
+console.log('Date engine tests passed (11 cases).');
